@@ -186,26 +186,26 @@ export default function Dashboard() {
                     {sensors.length > 0 ? (
                       <div className="grid gap-4">
                         {sensors.map((sensor) => (
-                          <div key={sensor.id} className="border rounded-lg p-4">
+                          <div key={sensor.id} className="border border-gray-300 bg-white rounded-lg p-4 shadow-sm">
                             <h4 className="font-medium text-gray-900 mb-2">{sensor.name}</h4>
-                            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm text-gray-700">
                               <div>
-                                <span className="text-gray-500">Type:</span> {sensor.type_name}
+                                <span className="text-gray-600 font-medium">Type:</span> {sensor.type_name}
                               </div>
                               <div>
-                                <span className="text-gray-500">Vendor:</span> {sensor.vendor}
+                                <span className="text-gray-600 font-medium">Vendor:</span> {sensor.vendor}
                               </div>
                               <div>
-                                <span className="text-gray-500">Version:</span> {sensor.version}
+                                <span className="text-gray-600 font-medium">Version:</span> {sensor.version}
                               </div>
                               <div>
-                                <span className="text-gray-500">Max Range:</span> {sensor.maximum_range}
+                                <span className="text-gray-600 font-medium">Max Range:</span> {sensor.maximum_range}
                               </div>
                               <div>
-                                <span className="text-gray-500">Resolution:</span> {sensor.resolution}
+                                <span className="text-gray-600 font-medium">Resolution:</span> {sensor.resolution}
                               </div>
                               <div>
-                                <span className="text-gray-500">Power:</span> {sensor.power} mA
+                                <span className="text-gray-600 font-medium">Power:</span> {sensor.power} mA
                               </div>
                             </div>
                           </div>
