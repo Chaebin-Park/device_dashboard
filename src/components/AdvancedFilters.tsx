@@ -37,7 +37,7 @@ export default function AdvancedFilters({
     sortOrder: 'desc'
   })
 
-  const updateFilter = (key: keyof FilterOptions, value: any) => {
+  const updateFilter = (key: keyof FilterOptions, value: FilterOptions[keyof FilterOptions]) => {
     const newFilters = { ...filters, [key]: value }
     setFilters(newFilters)
     onFilterChange(newFilters)

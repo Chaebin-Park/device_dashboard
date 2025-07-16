@@ -1,7 +1,7 @@
 // page.tsx (Enhanced Dashboard)
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { supabase, Device, Sensor } from '../lib/supabase'
 import AdvancedFilters from '../components/AdvancedFilters'
 import DeviceComparison from '../components/DeviceComparison'
@@ -43,47 +43,8 @@ export default function Dashboard() {
   // 고유 값들 추출
   const availableManufacturers = [...new Set(devices.map(d => d.manufacturer).filter(Boolean))]
   const availableAndroidVersions = [...new Set(devices.map(d => d.android_version).filter(Boolean))]
-  
-  useEffect(() => {
-    fetchDevices()
-    
-    const subscription = supabase
-      .channel('devices')
-      .on('postgres_changes', { 
-        event: 'INSERT', 
-        schema: 'public', 
-        table: 'devices' 
-      }, (payload) => {
-        setDevices(prev => [payload.new as Device, ...prev])
-      })
-      .subscribe()
 
-    return () => {
-      subscription.unsubscribe()
-    }
-  }, [])
-
-  useEffect(() => {
-    applyFilters()
-  }, [devices, filters])
-
-  const fetchDevices = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('devices')
-        .select('*')
-        .order('created_at', { ascending: false })
-
-      if (error) throw error
-      setDevices(data || [])
-    } catch (error) {
-      console.error('Error fetching devices:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const applyFilters = () => {
+  const applyFilters = useCallback(() => {
     let filtered = [...devices]
 
     // 검색 필터
@@ -150,6 +111,45 @@ export default function Dashboard() {
     })
 
     setFilteredDevices(filtered)
+  }, [devices, filters])
+
+  useEffect(() => {
+    fetchDevices()
+    
+    const subscription = supabase
+      .channel('devices')
+      .on('postgres_changes', { 
+        event: 'INSERT', 
+        schema: 'public', 
+        table: 'devices' 
+      }, (payload) => {
+        setDevices(prev => [payload.new as Device, ...prev])
+      })
+      .subscribe()
+
+    return () => {
+      subscription.unsubscribe()
+    }
+  }, [])
+
+  useEffect(() => {
+    applyFilters()
+  }, [devices, filters, applyFilters])
+
+  const fetchDevices = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('devices')
+        .select('*')
+        .order('created_at', { ascending: false })
+
+      if (error) throw error
+      setDevices(data || [])
+    } catch (error) {
+      console.error('Error fetching devices:', error)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const fetchSensors = async (deviceId: string) => {
