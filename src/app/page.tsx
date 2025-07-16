@@ -26,6 +26,7 @@ export default function Dashboard() {
   const [filteredDevices, setFilteredDevices] = useState<Device[]>([])
   const [selectedDevice, setSelectedDevice] = useState<Device | null>(null)
   const [comparisonDevices, setComparisonDevices] = useState<Device[]>([])
+  const [comparisonSensors, setComparisonSensors] = useState<Record<string, Sensor[]>>({})
   const [sensors, setSensors] = useState<Sensor[]>([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'list' | 'compare' | 'analytics'>('list')
@@ -136,6 +137,15 @@ export default function Dashboard() {
     applyFilters()
   }, [devices, filters, applyFilters])
 
+  useEffect(() => {
+    if (comparisonDevices.length > 0) {
+      const deviceIds = comparisonDevices.map(d => d.device_id)
+      fetchComparisonSensors(deviceIds)
+    } else {
+      setComparisonSensors({})
+    }
+  }, [comparisonDevices])
+
   const fetchDevices = async () => {
     try {
       const { data, error } = await supabase
@@ -164,6 +174,27 @@ export default function Dashboard() {
       setSensors(data || [])
     } catch (error) {
       console.error('Error fetching sensors:', error)
+    }
+  }
+
+  const fetchComparisonSensors = async (deviceIds: string[]) => {
+    try {
+      const sensorMap: Record<string, Sensor[]> = {}
+      
+      for (const deviceId of deviceIds) {
+        const { data, error } = await supabase
+          .from('sensors')
+          .select('*')
+          .eq('device_id', deviceId)
+          .order('name')
+
+        if (error) throw error
+        sensorMap[deviceId] = data || []
+      }
+      
+      setComparisonSensors(sensorMap)
+    } catch (error) {
+      console.error('Error fetching comparison sensors:', error)
     }
   }
 
@@ -381,6 +412,7 @@ export default function Dashboard() {
         {activeTab === 'compare' && (
           <DeviceComparison
             selectedDevices={comparisonDevices}
+            deviceSensors={comparisonSensors}
             onRemoveDevice={removeFromComparison}
             onClearAll={clearComparison}
           />
