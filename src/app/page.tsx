@@ -1,22 +1,52 @@
+// page.tsx (Enhanced Dashboard)
 'use client'
 
 import { useEffect, useState } from 'react'
 import { supabase, Device, Sensor } from '../lib/supabase'
+import AdvancedFilters from '../components/AdvancedFilters'
+import DeviceComparison from '../components/DeviceComparison'
+import AnalyticsCharts from '../components/AnalyticsCharts'
+import DataExport from '../components/DataExport'
 
-// 동적 렌더링 강제 (빌드 시 prerendering 방지)
 export const dynamic = 'force-dynamic'
+
+interface FilterOptions {
+  searchTerm: string
+  manufacturers: string[]
+  androidVersions: string[]
+  memoryRange: [number, number]
+  storageRange: [number, number]
+  cpuCores: number[]
+  sortBy: 'created_at' | 'model' | 'memory' | 'storage'
+  sortOrder: 'asc' | 'desc'
+}
 
 export default function Dashboard() {
   const [devices, setDevices] = useState<Device[]>([])
+  const [filteredDevices, setFilteredDevices] = useState<Device[]>([])
   const [selectedDevice, setSelectedDevice] = useState<Device | null>(null)
+  const [comparisonDevices, setComparisonDevices] = useState<Device[]>([])
   const [sensors, setSensors] = useState<Sensor[]>([])
   const [loading, setLoading] = useState(true)
-  const [searchTerm, setSearchTerm] = useState('')
+  const [activeTab, setActiveTab] = useState<'list' | 'compare' | 'analytics'>('list')
+  const [filters, setFilters] = useState<FilterOptions>({
+    searchTerm: '',
+    manufacturers: [],
+    androidVersions: [],
+    memoryRange: [0, 32],
+    storageRange: [0, 1000],
+    cpuCores: [],
+    sortBy: 'created_at',
+    sortOrder: 'desc'
+  })
 
+  // 고유 값들 추출
+  const availableManufacturers = [...new Set(devices.map(d => d.manufacturer).filter(Boolean))]
+  const availableAndroidVersions = [...new Set(devices.map(d => d.android_version).filter(Boolean))]
+  
   useEffect(() => {
     fetchDevices()
     
-    // 실시간 업데이트 구독
     const subscription = supabase
       .channel('devices')
       .on('postgres_changes', { 
@@ -33,6 +63,10 @@ export default function Dashboard() {
     }
   }, [])
 
+  useEffect(() => {
+    applyFilters()
+  }, [devices, filters])
+
   const fetchDevices = async () => {
     try {
       const { data, error } = await supabase
@@ -47,6 +81,75 @@ export default function Dashboard() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const applyFilters = () => {
+    let filtered = [...devices]
+
+    // 검색 필터
+    if (filters.searchTerm) {
+      filtered = filtered.filter(device =>
+        device.model?.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
+        device.manufacturer?.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
+        device.brand?.toLowerCase().includes(filters.searchTerm.toLowerCase())
+      )
+    }
+
+    // 제조사 필터
+    if (filters.manufacturers.length > 0) {
+      filtered = filtered.filter(device => 
+        filters.manufacturers.includes(device.manufacturer)
+      )
+    }
+
+    // Android 버전 필터
+    if (filters.androidVersions.length > 0) {
+      filtered = filtered.filter(device => 
+        filters.androidVersions.includes(device.android_version)
+      )
+    }
+
+    // 메모리 범위 필터
+    filtered = filtered.filter(device => 
+      device.total_memory_gb >= filters.memoryRange[0] && 
+      device.total_memory_gb <= filters.memoryRange[1]
+    )
+
+    // 저장공간 범위 필터
+    filtered = filtered.filter(device => 
+      device.total_storage_gb >= filters.storageRange[0] && 
+      device.total_storage_gb <= filters.storageRange[1]
+    )
+
+    // 정렬
+    filtered.sort((a, b) => {
+      let aValue, bValue
+      switch (filters.sortBy) {
+        case 'model':
+          aValue = a.model || ''
+          bValue = b.model || ''
+          break
+        case 'memory':
+          aValue = a.total_memory_gb || 0
+          bValue = b.total_memory_gb || 0
+          break
+        case 'storage':
+          aValue = a.total_storage_gb || 0
+          bValue = b.total_storage_gb || 0
+          break
+        default:
+          aValue = new Date(a.created_at).getTime()
+          bValue = new Date(b.created_at).getTime()
+      }
+
+      if (filters.sortOrder === 'asc') {
+        return aValue > bValue ? 1 : -1
+      } else {
+        return aValue < bValue ? 1 : -1
+      }
+    })
+
+    setFilteredDevices(filtered)
   }
 
   const fetchSensors = async (deviceId: string) => {
@@ -69,11 +172,25 @@ export default function Dashboard() {
     fetchSensors(device.device_id)
   }
 
-  const filteredDevices = devices.filter(device =>
-    device.model?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    device.manufacturer?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    device.brand?.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const toggleDeviceComparison = (device: Device) => {
+    setComparisonDevices(prev => {
+      const exists = prev.find(d => d.id === device.id)
+      if (exists) {
+        return prev.filter(d => d.id !== device.id)
+      } else if (prev.length < 4) {
+        return [...prev, device]
+      }
+      return prev
+    })
+  }
+
+  const removeFromComparison = (deviceId: string) => {
+    setComparisonDevices(prev => prev.filter(d => d.device_id !== deviceId))
+  }
+
+  const clearComparison = () => {
+    setComparisonDevices([])
+  }
 
   if (loading) {
     return (
@@ -87,143 +204,191 @@ export default function Dashboard() {
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <h1 className="text-3xl font-bold text-gray-900">Device Information Dashboard</h1>
-          <p className="text-gray-600 mt-1">총 {devices.length}개의 디바이스가 등록되었습니다</p>
+          <h1 className="text-3xl font-bold text-gray-900">Enhanced Device Dashboard</h1>
+          <p className="text-gray-600 mt-1">
+            총 {devices.length}개 디바이스 | 필터링됨 {filteredDevices.length}개
+          </p>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* 디바이스 목록 */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow">
-              <div className="p-6 border-b">
-                <h2 className="text-xl font-semibold text-gray-900">디바이스 목록</h2>
-                <div className="mt-4">
-                  <input
-                    type="text"
-                    placeholder="디바이스 검색..."
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
+        {/* 탭 네비게이션 */}
+        <div className="mb-6 border-b border-gray-200">
+          <nav className="-mb-px flex space-x-8">
+            <button
+              onClick={() => setActiveTab('list')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'list'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              📋 디바이스 목록
+            </button>
+            <button
+              onClick={() => setActiveTab('compare')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'compare'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              🔍 비교 분석 ({comparisonDevices.length})
+            </button>
+            <button
+              onClick={() => setActiveTab('analytics')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'analytics'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              📊 분석 차트
+            </button>
+          </nav>
+        </div>
+
+        {/* 고급 필터 */}
+        <AdvancedFilters
+          onFilterChange={setFilters}
+          availableManufacturers={availableManufacturers}
+          availableAndroidVersions={availableAndroidVersions}
+        />
+
+        {/* 데이터 내보내기 */}
+        <div className="mb-6">
+          <DataExport devices={devices} filteredDevices={filteredDevices} />
+        </div>
+
+        {/* 탭 컨텐츠 */}
+        {activeTab === 'list' && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* 디바이스 목록 */}
+            <div className="lg:col-span-1">
+              <div className="bg-white rounded-lg shadow">
+                <div className="p-6 border-b">
+                  <h2 className="text-xl font-semibold text-gray-900">
+                    디바이스 목록 ({filteredDevices.length})
+                  </h2>
                 </div>
-              </div>
-              <div className="max-h-96 overflow-y-auto">
-                {filteredDevices.map((device) => (
-                  <div
-                    key={device.id}
-                    className={`p-4 border-b cursor-pointer hover:bg-gray-50 transition-colors ${
-                      selectedDevice?.id === device.id ? 'bg-blue-50 border-blue-200' : ''
-                    }`}
-                    onClick={() => handleDeviceSelect(device)}
-                  >
-                    <div className="font-medium text-gray-900">{device.model}</div>
-                    <div className="text-sm text-gray-600">{device.manufacturer}</div>
-                    <div className="text-xs text-gray-400 mt-1">
-                      {new Date(device.created_at).toLocaleDateString('ko-KR')}
+                <div className="max-h-96 overflow-y-auto">
+                  {filteredDevices.map((device) => (
+                    <div
+                      key={device.id}
+                      className={`p-4 border-b hover:bg-gray-50 transition-colors ${
+                        selectedDevice?.id === device.id ? 'bg-blue-50 border-blue-200' : ''
+                      }`}
+                    >
+                      <div className="flex justify-between items-start">
+                        <div 
+                          className="flex-1 cursor-pointer"
+                          onClick={() => handleDeviceSelect(device)}
+                        >
+                          <div className="font-medium text-gray-900">{device.model}</div>
+                          <div className="text-sm text-gray-600">{device.manufacturer}</div>
+                          <div className="text-xs text-gray-400 mt-1">
+                            {new Date(device.created_at).toLocaleDateString('ko-KR')}
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => toggleDeviceComparison(device)}
+                          className={`ml-2 px-2 py-1 text-xs rounded ${
+                            comparisonDevices.find(d => d.id === device.id)
+                              ? 'bg-blue-500 text-white'
+                              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                          }`}
+                        >
+                          {comparisonDevices.find(d => d.id === device.id) ? '✓' : '+'}
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* 디바이스 상세 정보 */}
-          <div className="lg:col-span-2">
-            {selectedDevice ? (
-              <div className="space-y-6">
-                {/* 기본 정보 */}
-                <div className="bg-white rounded-lg shadow">
-                  <div className="p-6 border-b">
-                    <h3 className="text-lg font-semibold text-gray-900">기본 정보</h3>
+            {/* 디바이스 상세 정보 */}
+            <div className="lg:col-span-2">
+              {selectedDevice ? (
+                <div className="space-y-6">
+                  {/* 기본 정보 */}
+                  <div className="bg-white rounded-lg shadow">
+                    <div className="p-6 border-b">
+                      <h3 className="text-lg font-semibold text-gray-900">기본 정보</h3>
+                    </div>
+                    <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <InfoItem label="모델" value={selectedDevice.model} />
+                      <InfoItem label="제조사" value={selectedDevice.manufacturer} />
+                      <InfoItem label="브랜드" value={selectedDevice.brand} />
+                      <InfoItem label="Android 버전" value={selectedDevice.android_version} />
+                      <InfoItem label="SDK 버전" value={selectedDevice.sdk_version?.toString()} />
+                      <InfoItem label="통신사" value={selectedDevice.carrier_name} />
+                    </div>
                   </div>
-                  <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <InfoItem label="모델" value={selectedDevice.model} />
-                    <InfoItem label="제조사" value={selectedDevice.manufacturer} />
-                    <InfoItem label="브랜드" value={selectedDevice.brand} />
-                    <InfoItem label="Android 버전" value={selectedDevice.android_version} />
-                    <InfoItem label="SDK 버전" value={selectedDevice.sdk_version?.toString()} />
-                    <InfoItem label="통신사" value={selectedDevice.carrier_name} />
-                  </div>
-                </div>
 
-                {/* 하드웨어 정보 */}
-                <div className="bg-white rounded-lg shadow">
-                  <div className="p-6 border-b">
-                    <h3 className="text-lg font-semibold text-gray-900">하드웨어 정보</h3>
+                  {/* 하드웨어 정보 */}
+                  <div className="bg-white rounded-lg shadow">
+                    <div className="p-6 border-b">
+                      <h3 className="text-lg font-semibold text-gray-900">하드웨어 정보</h3>
+                    </div>
+                    <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <InfoItem label="CPU ABI" value={selectedDevice.cpu_abis?.join(', ')} />
+                      <InfoItem label="CPU 코어" value={`${selectedDevice.cpu_cores} cores`} />
+                      <InfoItem label="총 메모리" value={`${selectedDevice.total_memory_gb} GB`} />
+                      <InfoItem label="사용 가능 메모리" value={`${selectedDevice.available_memory_gb} GB`} />
+                      <InfoItem label="총 저장공간" value={`${selectedDevice.total_storage_gb} GB`} />
+                      <InfoItem label="사용 가능 저장공간" value={`${selectedDevice.available_storage_gb} GB`} />
+                    </div>
                   </div>
-                  <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <InfoItem label="CPU ABI" value={selectedDevice.cpu_abis?.join(', ')} />
-                    <InfoItem label="CPU 코어" value={`${selectedDevice.cpu_cores} cores`} />
-                    <InfoItem 
-                      label="총 메모리" 
-                      value={`${selectedDevice.total_memory_gb} GB`} 
-                    />
-                    <InfoItem 
-                      label="사용 가능 메모리" 
-                      value={`${selectedDevice.available_memory_gb} GB`} 
-                    />
-                    <InfoItem 
-                      label="총 저장공간" 
-                      value={`${selectedDevice.total_storage_gb} GB`} 
-                    />
-                    <InfoItem 
-                      label="사용 가능 저장공간" 
-                      value={`${selectedDevice.available_storage_gb} GB`} 
-                    />
-                  </div>
-                </div>
 
-                {/* 센서 정보 */}
-                <div className="bg-white rounded-lg shadow">
-                  <div className="p-6 border-b">
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      센서 정보 ({sensors.length}개)
-                    </h3>
-                  </div>
-                  <div className="p-6">
-                    {sensors.length > 0 ? (
-                      <div className="grid gap-4">
-                        {sensors.map((sensor) => (
-                          <div key={sensor.id} className="border border-gray-300 bg-white rounded-lg p-4 shadow-sm">
-                            <h4 className="font-medium text-gray-900 mb-2">{sensor.name}</h4>
-                            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm text-gray-700">
-                              <div>
-                                <span className="text-gray-600 font-medium">Type:</span> {sensor.type_name}
-                              </div>
-                              <div>
-                                <span className="text-gray-600 font-medium">Vendor:</span> {sensor.vendor}
-                              </div>
-                              <div>
-                                <span className="text-gray-600 font-medium">Version:</span> {sensor.version}
-                              </div>
-                              <div>
-                                <span className="text-gray-600 font-medium">Max Range:</span> {sensor.maximum_range}
-                              </div>
-                              <div>
-                                <span className="text-gray-600 font-medium">Resolution:</span> {sensor.resolution}
-                              </div>
-                              <div>
-                                <span className="text-gray-600 font-medium">Power:</span> {sensor.power} mA
+                  {/* 센서 정보 */}
+                  <div className="bg-white rounded-lg shadow">
+                    <div className="p-6 border-b">
+                      <h3 className="text-lg font-semibold text-gray-900">센서 정보 ({sensors.length}개)</h3>
+                    </div>
+                    <div className="p-6">
+                      {sensors.length > 0 ? (
+                        <div className="grid gap-4">
+                          {sensors.map((sensor) => (
+                            <div key={sensor.id} className="border border-gray-300 bg-white rounded-lg p-4 shadow-sm">
+                              <h4 className="font-medium text-gray-900 mb-2">{sensor.name}</h4>
+                              <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm text-gray-700">
+                                <div><span className="text-gray-600 font-medium">Type:</span> {sensor.type_name}</div>
+                                <div><span className="text-gray-600 font-medium">Vendor:</span> {sensor.vendor}</div>
+                                <div><span className="text-gray-600 font-medium">Version:</span> {sensor.version}</div>
+                                <div><span className="text-gray-600 font-medium">Max Range:</span> {sensor.maximum_range}</div>
+                                <div><span className="text-gray-600 font-medium">Resolution:</span> {sensor.resolution}</div>
+                                <div><span className="text-gray-600 font-medium">Power:</span> {sensor.power} mA</div>
                               </div>
                             </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-gray-500 text-center py-8">센서 정보가 없습니다.</p>
-                    )}
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-gray-500 text-center py-8">센서 정보가 없습니다.</p>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ) : (
-              <div className="bg-white rounded-lg shadow h-96 flex items-center justify-center">
-                <p className="text-gray-500 text-lg">디바이스를 선택해주세요</p>
-              </div>
-            )}
+              ) : (
+                <div className="bg-white rounded-lg shadow h-96 flex items-center justify-center">
+                  <p className="text-gray-500 text-lg">디바이스를 선택해주세요</p>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        )}
+
+        {activeTab === 'compare' && (
+          <DeviceComparison
+            selectedDevices={comparisonDevices}
+            onRemoveDevice={removeFromComparison}
+            onClearAll={clearComparison}
+          />
+        )}
+
+        {activeTab === 'analytics' && (
+          <AnalyticsCharts devices={filteredDevices} />
+        )}
       </main>
     </div>
   )
