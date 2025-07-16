@@ -1,8 +1,17 @@
+// lib/supabase.ts
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABSE_URL!
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
+// 런타임에서 환경변수 검증 (개발 중 디버깅용)
+if (typeof window !== 'undefined') {
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.error('Supabase environment variables are missing!')
+    console.error('NEXT_PUBLIC_SUPABASE_URL:', supabaseUrl)
+    console.error('NEXT_PUBLIC_SUPABASE_ANON_KEY:', supabaseAnonKey ? 'Set' : 'Missing')
+  }
+}
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 

@@ -3,6 +3,9 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 
+// 동적 렌더링 강제 (빌드 시 prerendering 방지)
+export const dynamic = 'force-dynamic'
+
 interface StatsData {
   totalDevices: number
   androidVersions: { version: string; count: number }[]
@@ -60,12 +63,13 @@ export default function StatsPage() {
         .not('total_memory_gb', 'is', null)
         .not('total_storage_gb', 'is', null)
 
-    const avgMemory = hardwareData && hardwareData.length > 0 
+      const avgMemory = hardwareData && hardwareData.length > 0 
         ? hardwareData.reduce((sum, curr) => sum + curr.total_memory_gb, 0) / hardwareData.length 
         : 0
       const avgStorage = hardwareData && hardwareData.length > 0 
         ? hardwareData.reduce((sum, curr) => sum + curr.total_storage_gb, 0) / hardwareData.length 
         : 0
+
       // 센서 통계
       const { data: sensorData } = await supabase
         .from('sensors')

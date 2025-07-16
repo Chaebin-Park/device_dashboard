@@ -3,6 +3,9 @@
 import { useEffect, useState } from 'react'
 import { supabase, Device, Sensor } from '../lib/supabase'
 
+// 동적 렌더링 강제 (빌드 시 prerendering 방지)
+export const dynamic = 'force-dynamic'
+
 export default function Dashboard() {
   const [devices, setDevices] = useState<Device[]>([])
   const [selectedDevice, setSelectedDevice] = useState<Device | null>(null)
