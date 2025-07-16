@@ -137,7 +137,7 @@ export default function DataExport({ devices, filteredDevices }: Props) {
         <div className="border-t pt-3">
           <button
             onClick={generateReport}
-            className="w-full px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600"
+            className="w-full px-4 py-2 bg-white-500 text-white rounded hover:bg-gray-600"
           >
             📊 종합 분석 보고서 생성
           </button>

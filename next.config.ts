@@ -2,8 +2,6 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
-  swcMinify: true,
-
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {
