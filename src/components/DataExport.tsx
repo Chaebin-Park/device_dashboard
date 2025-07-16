@@ -103,13 +103,13 @@ export default function DataExport({ devices, filteredDevices }: Props) {
               onClick={() => exportToCSV(filteredDevices, 'filtered_devices')}
               className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
             >
-              CSV 내보내기
+              CSV
             </button>
             <button
               onClick={() => exportToJSON(filteredDevices, 'filtered_devices')}
               className="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600"
             >
-              JSON 내보내기
+              JSON
             </button>
           </div>
         </div>
@@ -123,13 +123,13 @@ export default function DataExport({ devices, filteredDevices }: Props) {
               onClick={() => exportToCSV(devices, 'all_devices')}
               className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
             >
-              CSV 내보내기
+              CSV
             </button>
             <button
               onClick={() => exportToJSON(devices, 'all_devices')}
               className="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600"
             >
-              JSON 내보내기
+              JSON
             </button>
           </div>
         </div>
@@ -137,7 +137,7 @@ export default function DataExport({ devices, filteredDevices }: Props) {
         <div className="border-t pt-3">
           <button
             onClick={generateReport}
-            className="w-full px-4 py-2 bg-white-500 text-white rounded hover:bg-gray-600"
+            className="w-full px-4 py-2 bg-white text-gray-900 border border-gray-300 rounded hover:bg-gray-100"
           >
             📊 종합 분석 보고서 생성
           </button>
