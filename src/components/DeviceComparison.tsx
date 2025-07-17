@@ -13,10 +13,23 @@ interface Props {
 
 export default function DeviceComparison({ selectedDevices, deviceSensors, onRemoveDevice, onClearAll }: Props) {
   if (selectedDevices.length === 0) {
-    return (
-        <div className="bg-white rounded-lg shadow h-96 flex items-center justify-center">
-            <p className="text-gray-500 text-lg">비교할 디바이스를 선택해주세요 (최대 4개)</p>
-        </div>
+    // 각 디바이스별 센서 일치 정보 계산
+  const getDeviceSensorMatch = (deviceId: string) => {
+    const deviceSensorList = deviceSensors[deviceId] || []
+    const totalSensors = deviceSensorList.length
+    
+    // 비교 목록의 센서 중 해당 디바이스에 있는 센서 수
+    const matchingSensors = Array.from(allSensors.values()).filter(sensor => 
+      deviceSensorList.some(ds => ds.type === sensor.type)
+    ).length
+    
+    return { matching: matchingSensors, total: totalSensors }
+  }
+
+  return (
+      <div className="bg-white rounded-lg shadow p-6 text-center">
+        <p className="text-gray-500">비교할 디바이스를 선택해주세요 (최대 4개)</p>
+      </div>
     )
   }
 
@@ -56,6 +69,22 @@ export default function DeviceComparison({ selectedDevices, deviceSensors, onRem
   })
 
   const sortedSensorTypes = Object.keys(groupedSensors).sort()
+
+  // 모든 선택된 기기가 공통으로 가진 센서 수 계산
+  const getCommonSensorCount = () => {
+    const totalSensorTypes = Array.from(allSensors.values()).length
+    
+    // 모든 기기가 공통으로 가진 센서 수
+    const commonSensors = Array.from(allSensors.values()).filter(sensor => {
+      // 모든 선택된 기기가 이 센서를 가지고 있는지 확인
+      return selectedDevices.every(device => {
+        const deviceSensorList = deviceSensors[device.device_id] || []
+        return deviceSensorList.some(ds => ds.type === sensor.type)
+      })
+    }).length
+    
+    return { common: commonSensors, total: totalSensorTypes }
+  }
 
   // 각 디바이스별 특정 센서 정보 찾기 (type 숫자 기준)
   const getSensorInfo = (deviceId: string, sensorType: number) => {
@@ -129,10 +158,16 @@ export default function DeviceComparison({ selectedDevices, deviceSensors, onRem
       <div className="bg-white rounded-lg shadow">
         <div className="p-4 border-b bg-white sticky top-0 z-10 shadow-sm">
           <h3 className="text-lg font-semibold text-gray-900">
-            센서 비교 ({Array.from(allSensors.values()).length}개 센서 타입)
+            센서 비교 ({Array.from(allSensors.values()).length}개 센서 타입 비교)
           </h3>
           <p className="text-sm text-gray-600 mt-1">
-            센서 타입 번호가 같으면 동일한 센서로 취급하여 비교합니다
+            공통 센서: <span className="font-bold text-blue-600">
+              {(() => {
+                const commonCount = getCommonSensorCount()
+                return `${commonCount.common}/${commonCount.total}`
+              })()} 
+            </span>
+            (모든 선택된 기기가 공통으로 보유한 센서 / 전체 센서 종류)
           </p>
         </div>
 
@@ -168,7 +203,7 @@ export default function DeviceComparison({ selectedDevices, deviceSensors, onRem
                       <tr key={`${sensor.type_name}-${sensor.name}`} className="hover:bg-gray-50">
                         <td className="px-6 py-3 text-sm bg-gray-50 border-l-4 border-blue-300">
                           <div className="font-medium text-gray-900">{sensor.type_name}</div>
-                          <div className="text-xs text-gray-500">type: {sensor.type}</div>
+                          <div className="text-xs text-gray-500">센서 타입</div>
                         </td>
                         {selectedDevices.map((device) => {
                           const sensorInfo = getSensorInfo(device.device_id, sensor.type)
