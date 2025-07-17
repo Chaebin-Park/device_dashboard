@@ -1,13 +1,15 @@
-// components/AdvancedFilters.tsx
+// components/AdvancedFiltersWithTier.tsx
 'use client'
 
 import { useState } from 'react'
+import { DeviceTier, TIER_CONFIG } from '../utils/deviceTierSystem'
 
 interface FilterOptions {
   searchTerm: string
   manufacturers: string[]
   androidVersions: string[]
-  sortBy: 'created_at' | 'model' | 'sensor_count'
+  tiers: DeviceTier[]
+  sortBy: 'created_at' | 'model' | 'sensor_count' | 'tier_score'
   sortOrder: 'asc' | 'desc'
 }
 
@@ -17,7 +19,7 @@ interface Props {
   availableAndroidVersions: string[]
 }
 
-export default function AdvancedFilters({ 
+export default function AdvancedFiltersWithTier({ 
   onFilterChange, 
   availableManufacturers, 
   availableAndroidVersions 
@@ -27,6 +29,7 @@ export default function AdvancedFilters({
     searchTerm: '',
     manufacturers: [],
     androidVersions: [],
+    tiers: [],
     sortBy: 'created_at',
     sortOrder: 'desc'
   })
@@ -42,11 +45,19 @@ export default function AdvancedFilters({
       searchTerm: '',
       manufacturers: [],
       androidVersions: [],
+      tiers: [],
       sortBy: 'created_at',
       sortOrder: 'desc'
     }
     setFilters(defaultFilters)
     onFilterChange(defaultFilters)
+  }
+
+  const toggleTier = (tier: DeviceTier) => {
+    const newTiers = filters.tiers.includes(tier)
+      ? filters.tiers.filter(t => t !== tier)
+      : [...filters.tiers, tier]
+    updateFilter('tiers', newTiers)
   }
 
   return (
@@ -77,7 +88,7 @@ export default function AdvancedFilters({
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* 제조사 필터 */}
             <div>
               <label className="block text-sm font-medium !text-gray-700 mb-2">제조사</label>
@@ -110,6 +121,26 @@ export default function AdvancedFilters({
               </select>
             </div>
 
+            {/* 등급 필터 */}
+            <div>
+              <label className="block text-sm font-medium !text-gray-700 mb-2">등급</label>
+              <div className="space-y-2">
+                {Object.entries(TIER_CONFIG).map(([tier, config]) => (
+                  <label key={tier} className="flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={filters.tiers.includes(tier as DeviceTier)}
+                      onChange={() => toggleTier(tier as DeviceTier)}
+                      className="mr-2 rounded"
+                    />
+                    <span className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs ${config.bgColor} ${config.color}`}>
+                      {config.icon} {config.label}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
             {/* 정렬 */}
             <div>
               <label className="block text-sm font-medium !text-gray-700 mb-2">정렬</label>
@@ -121,6 +152,7 @@ export default function AdvancedFilters({
                 <option value="created_at">등록일</option>
                 <option value="model">모델명</option>
                 <option value="sensor_count">센서 갯수</option>
+                <option value="tier_score">등급 점수</option>
               </select>
               <select
                 value={filters.sortOrder}
@@ -147,3 +179,5 @@ export default function AdvancedFilters({
     </div>
   )
 }
+
+export type { FilterOptions }

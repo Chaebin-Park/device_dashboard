@@ -3,20 +3,15 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { supabase, Device, Sensor } from '../lib/supabase'
-import AdvancedFilters from '../components/AdvancedFilters'
+import AdvancedFilters, { FilterOptions } from '../components/AdvancedFilters'
 import DeviceComparison from '../components/DeviceComparison'
 import AnalyticsCharts from '../components/AnalyticsCharts'
+import TierAnalyticsChart from '../components/TierAnalyticsChart'
 import DataExport from '../components/DataExport'
+import DeviceTierBadge from '../components/DeviceTierBadge'
+import { getDeviceTierInfo, DeviceTier } from '../utils/deviceTierSystem'
 
 export const dynamic = 'force-dynamic'
-
-interface FilterOptions {
-  searchTerm: string
-  manufacturers: string[]
-  androidVersions: string[]
-  sortBy: 'created_at' | 'model' | 'sensor_count'
-  sortOrder: 'asc' | 'desc'
-}
 
 export default function Dashboard() {
   const [devices, setDevices] = useState<Device[]>([])
@@ -26,11 +21,12 @@ export default function Dashboard() {
   const [comparisonSensors, setComparisonSensors] = useState<Record<string, Sensor[]>>({})
   const [sensors, setSensors] = useState<Sensor[]>([])
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<'list' | 'compare' | 'analytics'>('list')
+  const [activeTab, setActiveTab] = useState<'list' | 'compare' | 'analytics' | 'tiers'>('list')
   const [filters, setFilters] = useState<FilterOptions>({
     searchTerm: '',
     manufacturers: [],
     androidVersions: [],
+    tiers: [],
     sortBy: 'created_at',
     sortOrder: 'desc'
   })
@@ -66,6 +62,15 @@ export default function Dashboard() {
       )
     }
 
+    // 등급 필터
+    if (filters.tiers.length > 0) {
+      filtered = filtered.filter(device => {
+        const sensorCount = deviceSensorCounts[device.device_id] || 0
+        const tierInfo = getDeviceTierInfo(device, sensorCount)
+        return filters.tiers.includes(tierInfo.tier)
+      })
+    }
+
     // 정렬
     filtered.sort((a, b) => {
       let aValue, bValue
@@ -77,6 +82,10 @@ export default function Dashboard() {
         case 'sensor_count':
           aValue = deviceSensorCounts[a.device_id] || 0
           bValue = deviceSensorCounts[b.device_id] || 0
+          break
+        case 'tier_score':
+          aValue = getDeviceTierInfo(a, deviceSensorCounts[a.device_id] || 0).score
+          bValue = getDeviceTierInfo(b, deviceSensorCounts[b.device_id] || 0).score
           break
         default:
           aValue = new Date(a.created_at).getTime()
@@ -161,12 +170,6 @@ export default function Dashboard() {
     }
   }, [devices])
 
-  useEffect(() => {
-    if (devices.length > 0) {
-      fetchDeviceSensorCounts()
-    }
-  }, [devices, fetchDeviceSensorCounts])
-
   const fetchSensors = async (deviceId: string) => {
     try {
       const { data, error } = await supabase
@@ -181,6 +184,12 @@ export default function Dashboard() {
       console.error('Error fetching sensors:', error)
     }
   }
+
+  useEffect(() => {
+    if (devices.length > 0) {
+      fetchDeviceSensorCounts()
+    }
+  }, [devices, fetchDeviceSensorCounts])
 
   const fetchComparisonSensors = async (deviceIds: string[]) => {
     try {
@@ -281,6 +290,16 @@ export default function Dashboard() {
             >
               📊 분석 차트
             </button>
+            <button
+              onClick={() => setActiveTab('tiers')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'tiers'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              🏆 등급 분석
+            </button>
           </nav>
         </div>
 
@@ -307,7 +326,7 @@ export default function Dashboard() {
                     디바이스 선택
                   </h3>
                   <p className="text-sm text-gray-600 mt-1">
-                    상세 정보를 볼 디바이스를 선택하세요
+                    디바이스를 클릭하여 상세 정보를 확인하세요
                   </p>
                 </div>
                 <div className="max-h-[600px] overflow-y-auto">
@@ -323,7 +342,14 @@ export default function Dashboard() {
                           className="flex-1 cursor-pointer"
                           onClick={() => handleDeviceSelect(device)}
                         >
-                          <div className="font-medium text-gray-900 text-sm">{device.model}</div>
+                          <div className="flex items-center justify-between mb-1">
+                            <div className="font-medium text-gray-900 text-sm">{device.model}</div>
+                            <DeviceTierBadge 
+                              device={device} 
+                              sensorCount={deviceSensorCounts[device.device_id] || 0}
+                              size="sm"
+                            />
+                          </div>
                           <div className="text-xs text-gray-600">{device.manufacturer}</div>
                           <div className="flex items-center justify-between text-xs text-gray-400 mt-1">
                             <span>{new Date(device.created_at).toLocaleDateString('ko-KR')}</span>
@@ -332,19 +358,6 @@ export default function Dashboard() {
                             </span>
                           </div>
                         </div>
-                        {/* <button
-                          onClick={() => toggleDeviceComparison(device)}
-                          disabled={!comparisonDevices.find(d => d.id === device.id) && comparisonDevices.length >= 4}
-                          className={`ml-2 px-3 py-1 text-xs rounded font-medium transition-colors ${
-                            comparisonDevices.find(d => d.id === device.id)
-                              ? 'bg-blue-500 text-white hover:bg-blue-600'
-                              : comparisonDevices.length >= 4
-                              ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                          }`}
-                        >
-                          {comparisonDevices.find(d => d.id === device.id) ? '선택됨' : '선택'}
-                        </button> */}
                       </div>
                     </div>
                   ))}
@@ -359,7 +372,15 @@ export default function Dashboard() {
                   {/* 기본 정보 */}
                   <div className="bg-white rounded-lg shadow">
                     <div className="p-6 border-b">
-                      <h3 className="text-lg font-semibold text-gray-900">기본 정보</h3>
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-lg font-semibold text-gray-900">기본 정보</h3>
+                        <DeviceTierBadge 
+                          device={selectedDevice} 
+                          sensorCount={deviceSensorCounts[selectedDevice.device_id] || 0}
+                          showScore={true}
+                          size="lg"
+                        />
+                      </div>
                     </div>
                     <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                       <InfoItem label="모델" value={selectedDevice.model} />
@@ -433,41 +454,46 @@ export default function Dashboard() {
                     디바이스 선택
                   </h3>
                   <p className="text-sm text-gray-600 mt-1">
-                    비교할 디바이스를 선택하세요 (최대 4개)
+                    디바이스를 클릭하여 비교하세요 (최대 4개)
                   </p>
                 </div>
                 <div className="max-h-[600px] overflow-y-auto">
                   {filteredDevices.map((device) => (
                     <div
                       key={device.id}
-                      className={`p-3 border-b hover:bg-gray-50 transition-colors ${
+                      className={`p-3 border-b hover:bg-gray-50 transition-colors cursor-pointer ${
                         comparisonDevices.find(d => d.id === device.id) ? 'bg-blue-50 border-blue-200' : ''
+                      } ${
+                        !comparisonDevices.find(d => d.id === device.id) && comparisonDevices.length >= 4 
+                          ? 'opacity-50 cursor-not-allowed' 
+                          : ''
                       }`}
+                      onClick={() => {
+                        if (!comparisonDevices.find(d => d.id === device.id) && comparisonDevices.length >= 4) {
+                          return; // 4개 초과시 클릭 방지
+                        }
+                        toggleDeviceComparison(device)
+                      }}
                     >
-                      <div className="flex justify-between items-center">
-                        <div className="flex-1">
-                          <div className="font-medium text-gray-900 text-sm">{device.model}</div>
-                          <div className="text-xs text-gray-600">{device.manufacturer}</div>
-                          <div className="flex items-center justify-between text-xs text-gray-400 mt-1">
-                            <span>{new Date(device.created_at).toLocaleDateString('ko-KR')}</span>
-                            <span className="text-blue-600 font-medium">
-                              센서 {deviceSensorCounts[device.device_id] || 0}개
-                            </span>
-                          </div>
+                      <div className="flex items-center justify-between mb-1">
+                        <div className="font-medium text-gray-900 text-sm">{device.model}</div>
+                        <div className="flex items-center gap-2">
+                          <DeviceTierBadge 
+                            device={device} 
+                            sensorCount={deviceSensorCounts[device.device_id] || 0}
+                            size="sm"
+                          />
+                          {comparisonDevices.find(d => d.id === device.id) && (
+                            <span className="text-blue-600 text-xs font-medium">✓ 선택됨</span>
+                          )}
                         </div>
-                        <button
-                          onClick={() => toggleDeviceComparison(device)}
-                          disabled={!comparisonDevices.find(d => d.id === device.id) && comparisonDevices.length >= 4}
-                          className={`ml-2 px-3 py-1 text-xs rounded font-medium transition-colors ${
-                            comparisonDevices.find(d => d.id === device.id)
-                              ? 'bg-blue-500 text-white hover:bg-blue-600'
-                              : comparisonDevices.length >= 4
-                              ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                          }`}
-                        >
-                          {comparisonDevices.find(d => d.id === device.id) ? '선택됨' : '선택'}
-                        </button>
+                      </div>
+                      <div className="text-xs text-gray-600">{device.manufacturer}</div>
+                      <div className="flex items-center justify-between text-xs text-gray-400 mt-1">
+                        <span>{new Date(device.created_at).toLocaleDateString('ko-KR')}</span>
+                        <span className="text-blue-600 font-medium">
+                          센서 {deviceSensorCounts[device.device_id] || 0}개
+                        </span>
                       </div>
                     </div>
                   ))}
@@ -489,6 +515,13 @@ export default function Dashboard() {
 
         {activeTab === 'analytics' && (
           <AnalyticsCharts devices={filteredDevices} />
+        )}
+
+        {activeTab === 'tiers' && (
+          <TierAnalyticsChart 
+            devices={filteredDevices} 
+            deviceSensorCounts={deviceSensorCounts}
+          />
         )}
       </main>
     </div>
