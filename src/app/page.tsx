@@ -323,7 +323,7 @@ export default function Dashboard() {
                           <div className="text-xs text-gray-400 mt-1">
                             {new Date(device.created_at).toLocaleDateString('ko-KR')}
                           </div>
-                        </div>
+                        {/* </div>
                         <button
                           onClick={() => toggleDeviceComparison(device)}
                           disabled={!comparisonDevices.find(d => d.id === device.id) && comparisonDevices.length >= 4}
@@ -336,7 +336,7 @@ export default function Dashboard() {
                           }`}
                         >
                           {comparisonDevices.find(d => d.id === device.id) ? '선택됨' : '선택'}
-                        </button>
+                        </button> */}
                       </div>
                     </div>
                   ))}
