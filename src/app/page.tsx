@@ -27,7 +27,7 @@ export default function Dashboard() {
     manufacturers: [],
     androidVersions: [],
     tiers: [],
-    sortBy: 'created_at',
+    sortBy: 'tier_score',
     sortOrder: 'desc'
   })
   const [deviceSensorCounts, setDeviceSensorCounts] = useState<Record<string, number>>({})

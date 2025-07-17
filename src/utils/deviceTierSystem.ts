@@ -48,11 +48,10 @@ export function calculateDeviceScore(device: Device, sensorCount: number): numbe
   
   // 메모리 점수 (40점 만점)
   const memory = device.total_memory_gb || 0
-  if (memory >= 16) score += 40
-  else if (memory >= 12) score += 35
-  else if (memory >= 8) score += 25
-  else if (memory >= 6) score += 15
-  else if (memory >= 4) score += 10
+  if (memory >= 12) score += 40
+  else if (memory >= 8) score += 35
+  else if (memory >= 6) score += 25
+  else if (memory >= 4) score += 15
   else score += 5
   
   // 저장공간 점수 (30점 만점)

@@ -30,7 +30,7 @@ export default function AdvancedFiltersWithTier({
     manufacturers: [],
     androidVersions: [],
     tiers: [],
-    sortBy: 'created_at',
+    sortBy: 'tier_score',
     sortOrder: 'desc'
   })
 
@@ -46,7 +46,7 @@ export default function AdvancedFiltersWithTier({
       manufacturers: [],
       androidVersions: [],
       tiers: [],
-      sortBy: 'created_at',
+      sortBy: 'tier_score',
       sortOrder: 'desc'
     }
     setFilters(defaultFilters)
@@ -149,10 +149,10 @@ export default function AdvancedFiltersWithTier({
                 onChange={(e) => updateFilter('sortBy', e.target.value as FilterOptions['sortBy'])}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2 !text-gray-800"
               >
-                <option value="created_at">등록일</option>
-                <option value="model">모델명</option>
-                <option value="sensor_count">센서 갯수</option>
                 <option value="tier_score">등급 점수</option>
+                <option value="sensor_count">센서 갯수</option>
+                <option value="model">모델명</option>
+                <option value="created_at">등록일</option>
               </select>
               <select
                 value={filters.sortOrder}
