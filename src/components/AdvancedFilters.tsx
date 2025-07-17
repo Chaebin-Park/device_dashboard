@@ -129,8 +129,6 @@ export default function AdvancedFilters({
               >
                 <option value="created_at">등록일</option>
                 <option value="model">모델명</option>
-                <option value="memory">메모리</option>
-                <option value="storage">저장공간</option>
               </select>
               <select
                 value={filters.sortOrder}
@@ -141,38 +139,6 @@ export default function AdvancedFilters({
                 <option value="asc">오름차순</option>
               </select>
             </div>
-          </div>
-
-          {/* 메모리 범위 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              메모리 범위: {filters.memoryRange[0]}GB - {filters.memoryRange[1]}GB
-            </label>
-            <input
-              type="range"
-              min={0}
-              max={32}
-              step={1}
-              value={filters.memoryRange[1]}
-              onChange={(e) => updateFilter('memoryRange', [filters.memoryRange[0], parseInt(e.target.value)])}
-              className="w-full"
-            />
-          </div>
-
-          {/* 저장공간 범위 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              저장공간 범위: {filters.storageRange[0]}GB - {filters.storageRange[1]}GB
-            </label>
-            <input
-              type="range"
-              min={0}
-              max={1000}
-              step={16}
-              value={filters.storageRange[1]}
-              onChange={(e) => updateFilter('storageRange', [filters.storageRange[0], parseInt(e.target.value)])}
-              className="w-full"
-            />
           </div>
 
           {/* 리셋 버튼 */}
