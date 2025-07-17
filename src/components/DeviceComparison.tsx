@@ -14,9 +14,9 @@ interface Props {
 export default function DeviceComparison({ selectedDevices, deviceSensors, onRemoveDevice, onClearAll }: Props) {
   if (selectedDevices.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow p-6 text-center">
-        <p className="text-gray-500">비교할 디바이스를 선택해주세요 (최대 4개)</p>
-      </div>
+        <div className="bg-white rounded-lg shadow h-96 flex items-center justify-center">
+            <p className="text-gray-500 text-lg">비교할 디바이스를 선택해주세요 (최대 4개)</p>
+        </div>
     )
   }
 
