@@ -293,20 +293,23 @@ export default function Dashboard() {
 
         {/* 탭 컨텐츠 */}
         {activeTab === 'list' && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             {/* 디바이스 목록 */}
             <div className="lg:col-span-1">
               <div className="bg-white rounded-lg shadow">
-                <div className="p-6 border-b">
-                  <h2 className="text-xl font-semibold text-gray-900">
-                    디바이스 목록 ({filteredDevices.length})
-                  </h2>
+                <div className="p-4 border-b">
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    디바이스 선택
+                  </h3>
+                  <p className="text-sm text-gray-600 mt-1">
+                    상세 정보를 볼 디바이스를 선택하세요
+                  </p>
                 </div>
-                <div className="max-h-96 overflow-y-auto">
+                <div className="max-h-[600px] overflow-y-auto">
                   {filteredDevices.map((device) => (
                     <div
                       key={device.id}
-                      className={`p-4 border-b hover:bg-gray-50 transition-colors ${
+                      className={`p-3 border-b hover:bg-gray-50 transition-colors ${
                         selectedDevice?.id === device.id ? 'bg-blue-50 border-blue-200' : ''
                       }`}
                     >
@@ -315,21 +318,24 @@ export default function Dashboard() {
                           className="flex-1 cursor-pointer"
                           onClick={() => handleDeviceSelect(device)}
                         >
-                          <div className="font-medium text-gray-900">{device.model}</div>
-                          <div className="text-sm text-gray-600">{device.manufacturer}</div>
+                          <div className="font-medium text-gray-900 text-sm">{device.model}</div>
+                          <div className="text-xs text-gray-600">{device.manufacturer}</div>
                           <div className="text-xs text-gray-400 mt-1">
                             {new Date(device.created_at).toLocaleDateString('ko-KR')}
                           </div>
                         </div>
                         <button
                           onClick={() => toggleDeviceComparison(device)}
-                          className={`ml-2 px-2 py-1 text-xs rounded ${
+                          disabled={!comparisonDevices.find(d => d.id === device.id) && comparisonDevices.length >= 4}
+                          className={`ml-2 px-3 py-1 text-xs rounded font-medium transition-colors ${
                             comparisonDevices.find(d => d.id === device.id)
-                              ? 'bg-blue-500 text-white'
+                              ? 'bg-blue-500 text-white hover:bg-blue-600'
+                              : comparisonDevices.length >= 4
+                              ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                               : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                           }`}
                         >
-                          {comparisonDevices.find(d => d.id === device.id) ? '✓' : '+'}
+                          {comparisonDevices.find(d => d.id === device.id) ? '선택됨' : '선택'}
                         </button>
                       </div>
                     </div>
@@ -339,7 +345,7 @@ export default function Dashboard() {
             </div>
 
             {/* 디바이스 상세 정보 */}
-            <div className="lg:col-span-2">
+            <div className="lg:col-span-3">
               {selectedDevice ? (
                 <div className="space-y-6">
                   {/* 기본 정보 */}
@@ -410,12 +416,64 @@ export default function Dashboard() {
         )}
 
         {activeTab === 'compare' && (
-          <DeviceComparison
-            selectedDevices={comparisonDevices}
-            deviceSensors={comparisonSensors}
-            onRemoveDevice={removeFromComparison}
-            onClearAll={clearComparison}
-          />
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            {/* 디바이스 선택 사이드바 */}
+            <div className="lg:col-span-1">
+              <div className="bg-white rounded-lg shadow">
+                <div className="p-4 border-b">
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    디바이스 선택
+                  </h3>
+                  <p className="text-sm text-gray-600 mt-1">
+                    비교할 디바이스를 선택하세요 (최대 4개)
+                  </p>
+                </div>
+                <div className="max-h-[600px] overflow-y-auto">
+                  {filteredDevices.map((device) => (
+                    <div
+                      key={device.id}
+                      className={`p-3 border-b hover:bg-gray-50 transition-colors ${
+                        comparisonDevices.find(d => d.id === device.id) ? 'bg-blue-50 border-blue-200' : ''
+                      }`}
+                    >
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <div className="font-medium text-gray-900 text-sm">{device.model}</div>
+                          <div className="text-xs text-gray-600">{device.manufacturer}</div>
+                          <div className="text-xs text-gray-400 mt-1">
+                            {new Date(device.created_at).toLocaleDateString('ko-KR')}
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => toggleDeviceComparison(device)}
+                          disabled={!comparisonDevices.find(d => d.id === device.id) && comparisonDevices.length >= 4}
+                          className={`ml-2 px-3 py-1 text-xs rounded font-medium transition-colors ${
+                            comparisonDevices.find(d => d.id === device.id)
+                              ? 'bg-blue-500 text-white hover:bg-blue-600'
+                              : comparisonDevices.length >= 4
+                              ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                          }`}
+                        >
+                          {comparisonDevices.find(d => d.id === device.id) ? '선택됨' : '선택'}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* 비교 결과 */}
+            <div className="lg:col-span-3">
+              <DeviceComparison
+                selectedDevices={comparisonDevices}
+                deviceSensors={comparisonSensors}
+                onRemoveDevice={removeFromComparison}
+                onClearAll={clearComparison}
+              />
+            </div>
+          </div>
         )}
 
         {activeTab === 'analytics' && (

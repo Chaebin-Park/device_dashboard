@@ -76,86 +76,108 @@ export default function AnalyticsCharts({ devices }: Props) {
   return (
     <div className="space-y-8">
       {/* Android 버전별 분포 */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Android 버전별 분포</h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={androidChartData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="version" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="count" fill="#3B82F6" />
-          </BarChart>
-        </ResponsiveContainer>
+      <div className="bg-white rounded-lg shadow">
+        <div className="p-6 border-b bg-white sticky top-0 z-10 rounded-t-lg shadow-sm">
+          <h3 className="text-lg font-semibold text-gray-900">Android 버전별 분포</h3>
+        </div>
+        <div className="p-6 max-h-80 overflow-auto">
+          <div style={{ width: '100%', minWidth: `${Math.max(androidChartData.length * 60, 400)}px` }}>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={androidChartData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="version" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="count" fill="#3B82F6" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* 메모리 분포 */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">메모리 분포</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={memoryChartData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="range" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="count" fill="#10B981" />
-            </BarChart>
-          </ResponsiveContainer>
+        <div className="bg-white rounded-lg shadow">
+          <div className="p-6 border-b bg-white sticky top-0 z-10 rounded-t-lg shadow-sm">
+            <h3 className="text-lg font-semibold text-gray-900">메모리 분포</h3>
+          </div>
+          <div className="p-6 max-h-80 overflow-auto">
+            <div style={{ width: '100%', minWidth: `${Math.max(memoryChartData.length * 80, 300)}px` }}>
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart data={memoryChartData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="range" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="count" fill="#10B981" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
         </div>
 
         {/* 제조사별 분포 (파이 차트) */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">제조사별 분포</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={manufacturerChartData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ name, percent }) => `${name} (${((percent || 0) * 100).toFixed(0)}%)`}
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {manufacturerChartData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
+        <div className="bg-white rounded-lg shadow">
+          <div className="p-6 border-b bg-white sticky top-0 z-10 rounded-t-lg shadow-sm">
+            <h3 className="text-lg font-semibold text-gray-900">제조사별 분포</h3>
+          </div>
+          <div className="p-6 max-h-80 overflow-auto">
+            <ResponsiveContainer width="100%" height={250}>
+              <PieChart>
+                <Pie
+                  data={manufacturerChartData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => `${name} (${((percent || 0) * 100).toFixed(0)}%)`}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {manufacturerChartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
 
       {/* 메모리 vs 저장공간 산점도 */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">메모리 vs 저장공간 분포</h3>
-        <ResponsiveContainer width="100%" height={400}>
-          <ScatterChart data={scatterData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="memory" name="메모리(GB)" />
-            <YAxis dataKey="storage" name="저장공간(GB)" />
-            <Tooltip 
-              cursor={{ strokeDasharray: '3 3' }}
-              content={({ active, payload }) => {
-                if (active && payload && payload.length) {
-                  const data = payload[0].payload
-                  return (
-                    <div className="bg-white p-3 shadow-lg rounded border">
-                      <p className="font-semibold">{data.model}</p>
-                      <p>메모리: {data.memory}GB</p>
-                      <p>저장공간: {data.storage}GB</p>
-                    </div>
-                  )
-                }
-                return null
-              }}
-            />
-            <Scatter name="디바이스" dataKey="storage" fill="#8B5CF6" />
-          </ScatterChart>
-        </ResponsiveContainer>
+      <div className="bg-white rounded-lg shadow">
+        <div className="p-6 border-b bg-white sticky top-0 z-10 rounded-t-lg shadow-sm">
+          <h3 className="text-lg font-semibold text-gray-900">메모리 vs 저장공간 분포</h3>
+        </div>
+        <div className="p-6 max-h-96 overflow-auto">
+          <div style={{ width: '100%', minWidth: '600px' }}>
+            <ResponsiveContainer width="100%" height={350}>
+              <ScatterChart data={scatterData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="memory" name="메모리(GB)" />
+                <YAxis dataKey="storage" name="저장공간(GB)" />
+                <Tooltip 
+                  cursor={{ strokeDasharray: '3 3' }}
+                  content={({ active, payload }) => {
+                    if (active && payload && payload.length) {
+                      const data = payload[0].payload
+                      return (
+                        <div className="bg-white p-3 shadow-lg rounded border">
+                          <p className="font-semibold">{data.model}</p>
+                          <p>메모리: {data.memory}GB</p>
+                          <p>저장공간: {data.storage}GB</p>
+                        </div>
+                      )
+                    }
+                    return null
+                  }}
+                />
+                <Scatter name="디바이스" dataKey="storage" fill="#8B5CF6" />
+              </ScatterChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
       </div>
     </div>
   )
