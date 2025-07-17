@@ -9,8 +9,6 @@ import {
   CartesianGrid, 
   Tooltip, 
   ResponsiveContainer,
-  PieChart,
-  Pie,
   Cell,
   RadarChart,
   PolarGrid,
@@ -59,9 +57,9 @@ export default function TierAnalyticsChart({ devices, deviceSensorCounts }: Prop
   // 레이더 차트용 데이터 (정규화)
   const radarData = performanceComparisonData.map(item => ({
     tier: item.tier,
-    메모리: Math.min((item.memory / 16) * 100, 100), // 16GB 기준으로 정규화
-    저장공간: Math.min((item.storage / 512) * 100, 100), // 512GB 기준으로 정규화  
-    센서: Math.min((item.sensors / 30) * 100, 100) // 30개 기준으로 정규화
+    메모리: Math.min((item.memory / 12) * 100, 100), // 12GB 기준으로 정규화
+    저장공간: Math.min((item.storage / 256) * 100, 100), // 256GB 기준으로 정규화  
+    센서: Math.min((item.sensors / 50) * 100, 100) // 50개 기준으로 정규화
   }))
   
   // 대표 기기들 (각 등급별 점수가 높은 기기)
