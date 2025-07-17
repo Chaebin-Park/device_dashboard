@@ -168,7 +168,7 @@ export default function DeviceComparison({ selectedDevices, deviceSensors, onRem
                       <tr key={`${sensor.type_name}-${sensor.name}`} className="hover:bg-gray-50">
                         <td className="px-6 py-3 text-sm bg-gray-50 border-l-4 border-blue-300">
                           <div className="font-medium text-gray-900">{sensor.type_name}</div>
-                          <div className="text-xs text-gray-500">센서 타입</div>
+                          <div className="text-xs text-gray-500">type: {sensor.type}</div>
                         </td>
                         {selectedDevices.map((device) => {
                           const sensorInfo = getSensorInfo(device.device_id, sensor.type)
