@@ -14,10 +14,7 @@ interface FilterOptions {
   searchTerm: string
   manufacturers: string[]
   androidVersions: string[]
-  memoryRange: [number, number]
-  storageRange: [number, number]
-  cpuCores: number[]
-  sortBy: 'created_at' | 'model' | 'memory' | 'storage'
+  sortBy: 'created_at' | 'model' | 'sensor_count'
   sortOrder: 'asc' | 'desc'
 }
 
@@ -34,12 +31,10 @@ export default function Dashboard() {
     searchTerm: '',
     manufacturers: [],
     androidVersions: [],
-    memoryRange: [0, 32],
-    storageRange: [0, 1000],
-    cpuCores: [],
     sortBy: 'created_at',
     sortOrder: 'desc'
   })
+  const [deviceSensorCounts, setDeviceSensorCounts] = useState<Record<string, number>>({})
 
   // 고유 값들 추출
   const availableManufacturers = [...new Set(devices.map(d => d.manufacturer).filter(Boolean))]
@@ -71,18 +66,6 @@ export default function Dashboard() {
       )
     }
 
-    // 메모리 범위 필터
-    filtered = filtered.filter(device => 
-      device.total_memory_gb >= filters.memoryRange[0] && 
-      device.total_memory_gb <= filters.memoryRange[1]
-    )
-
-    // 저장공간 범위 필터
-    filtered = filtered.filter(device => 
-      device.total_storage_gb >= filters.storageRange[0] && 
-      device.total_storage_gb <= filters.storageRange[1]
-    )
-
     // 정렬
     filtered.sort((a, b) => {
       let aValue, bValue
@@ -91,13 +74,9 @@ export default function Dashboard() {
           aValue = a.model || ''
           bValue = b.model || ''
           break
-        case 'memory':
-          aValue = a.total_memory_gb || 0
-          bValue = b.total_memory_gb || 0
-          break
-        case 'storage':
-          aValue = a.total_storage_gb || 0
-          bValue = b.total_storage_gb || 0
+        case 'sensor_count':
+          aValue = deviceSensorCounts[a.device_id] || 0
+          bValue = deviceSensorCounts[b.device_id] || 0
           break
         default:
           aValue = new Date(a.created_at).getTime()
@@ -112,7 +91,7 @@ export default function Dashboard() {
     })
 
     setFilteredDevices(filtered)
-  }, [devices, filters])
+  }, [devices, filters, deviceSensorCounts])
 
   useEffect(() => {
     fetchDevices()
@@ -161,6 +140,32 @@ export default function Dashboard() {
       setLoading(false)
     }
   }
+
+  const fetchDeviceSensorCounts = useCallback(async () => {
+    try {
+      const counts: Record<string, number> = {}
+      
+      for (const device of devices) {
+        const { count, error } = await supabase
+          .from('sensors')
+          .select('*', { count: 'exact', head: true })
+          .eq('device_id', device.device_id)
+
+        if (error) throw error
+        counts[device.device_id] = count || 0
+      }
+      
+      setDeviceSensorCounts(counts)
+    } catch (error) {
+      console.error('Error fetching sensor counts:', error)
+    }
+  }, [devices])
+
+  useEffect(() => {
+    if (devices.length > 0) {
+      fetchDeviceSensorCounts()
+    }
+  }, [devices, fetchDeviceSensorCounts])
 
   const fetchSensors = async (deviceId: string) => {
     try {
@@ -287,9 +292,9 @@ export default function Dashboard() {
         />
 
         {/* 데이터 내보내기 */}
-        {/* <div className="mb-6">
+        <div className="mb-6">
           <DataExport devices={devices} filteredDevices={filteredDevices} />
-        </div> */}
+        </div>
 
         {/* 탭 컨텐츠 */}
         {activeTab === 'list' && (
@@ -313,15 +318,18 @@ export default function Dashboard() {
                         selectedDevice?.id === device.id ? 'bg-blue-50 border-blue-200' : ''
                       }`}
                     >
-                      <div className="flex justify-between items-start">
+                      <div className="flex justify-between items-center">
                         <div 
                           className="flex-1 cursor-pointer"
                           onClick={() => handleDeviceSelect(device)}
                         >
                           <div className="font-medium text-gray-900 text-sm">{device.model}</div>
                           <div className="text-xs text-gray-600">{device.manufacturer}</div>
-                          <div className="text-xs text-gray-400 mt-1">
-                            {new Date(device.created_at).toLocaleDateString('ko-KR')}
+                          <div className="flex items-center justify-between text-xs text-gray-400 mt-1">
+                            <span>{new Date(device.created_at).toLocaleDateString('ko-KR')}</span>
+                            <span className="text-blue-600 font-medium">
+                              센서 {deviceSensorCounts[device.device_id] || 0}개
+                            </span>
                           </div>
                         </div>
                         {/* <button
@@ -436,12 +444,15 @@ export default function Dashboard() {
                         comparisonDevices.find(d => d.id === device.id) ? 'bg-blue-50 border-blue-200' : ''
                       }`}
                     >
-                      <div className="flex justify-between items-start">
+                      <div className="flex justify-between items-center">
                         <div className="flex-1">
                           <div className="font-medium text-gray-900 text-sm">{device.model}</div>
                           <div className="text-xs text-gray-600">{device.manufacturer}</div>
-                          <div className="text-xs text-gray-400 mt-1">
-                            {new Date(device.created_at).toLocaleDateString('ko-KR')}
+                          <div className="flex items-center justify-between text-xs text-gray-400 mt-1">
+                            <span>{new Date(device.created_at).toLocaleDateString('ko-KR')}</span>
+                            <span className="text-blue-600 font-medium">
+                              센서 {deviceSensorCounts[device.device_id] || 0}개
+                            </span>
                           </div>
                         </div>
                         <button
