@@ -292,9 +292,9 @@ export default function Dashboard() {
         />
 
         {/* 데이터 내보내기 */}
-        <div className="mb-6">
+        {/* <div className="mb-6">
           <DataExport devices={devices} filteredDevices={filteredDevices} />
-        </div>
+        </div> */}
 
         {/* 탭 컨텐츠 */}
         {activeTab === 'list' && (
