@@ -87,7 +87,14 @@ export default function AnalyticsCharts({ devices }: Props) {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="version" />
                 <YAxis />
-                <Tooltip />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'white', 
+                    border: '1px solid #ccc', 
+                    borderRadius: '4px',
+                    color: '#374151'
+                  }}
+                />
                 <Bar dataKey="count" fill="#3B82F6" />
               </BarChart>
             </ResponsiveContainer>
@@ -108,7 +115,14 @@ export default function AnalyticsCharts({ devices }: Props) {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="range" />
                   <YAxis />
-                  <Tooltip />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'white', 
+                      border: '1px solid #ccc', 
+                      borderRadius: '4px',
+                      color: '#374151'
+                    }}
+                  />
                   <Bar dataKey="count" fill="#10B981" />
                 </BarChart>
               </ResponsiveContainer>
@@ -138,7 +152,14 @@ export default function AnalyticsCharts({ devices }: Props) {
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'white', 
+                    border: '1px solid #ccc', 
+                    borderRadius: '4px',
+                    color: '#374151'
+                  }}
+                />
               </PieChart>
             </ResponsiveContainer>
           </div>
@@ -163,10 +184,10 @@ export default function AnalyticsCharts({ devices }: Props) {
                     if (active && payload && payload.length) {
                       const data = payload[0].payload
                       return (
-                        <div className="bg-white p-3 shadow-lg rounded border">
-                          <p className="font-semibold">{data.model}</p>
-                          <p>메모리: {data.memory}GB</p>
-                          <p>저장공간: {data.storage}GB</p>
+                        <div className="bg-white p-3 shadow-lg rounded border" style={{ color: '#374151' }}>
+                          <p className="font-semibold" style={{ color: '#111827' }}>{data.model}</p>
+                          <p style={{ color: '#374151' }}>메모리: {data.memory}GB</p>
+                          <p style={{ color: '#374151' }}>저장공간: {data.storage}GB</p>
                         </div>
                       )
                     }

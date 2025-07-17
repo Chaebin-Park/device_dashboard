@@ -115,7 +115,7 @@ export default function StatsPage() {
   if (!stats) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-gray-500">통계 데이터를 불러올 수 없습니다.</p>
+        <p className="!text-gray-500">통계 데이터를 불러올 수 없습니다.</p>
       </div>
     )
   }
@@ -124,8 +124,8 @@ export default function StatsPage() {
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <h1 className="text-3xl font-bold text-gray-900">통계</h1>
-          <p className="text-gray-600 mt-1">디바이스 및 센서 통계 정보</p>
+          <h1 className="text-3xl font-bold !text-gray-900">통계</h1>
+          <p className="!text-gray-600 mt-1">디바이스 및 센서 통계 정보</p>
         </div>
       </header>
 
@@ -158,12 +158,12 @@ export default function StatsPage() {
           {/* Android 버전 통계 */}
           <div className="bg-white rounded-lg shadow">
             <div className="p-6 border-b">
-              <h3 className="text-lg font-semibold text-gray-900">Android 버전별 분포</h3>
+              <h3 className="text-lg font-semibold !text-gray-900">Android 버전별 분포</h3>
             </div>
             <div className="p-6">
               {stats.androidVersions.map((item) => (
                 <div key={item.version} className="flex items-center justify-between py-2">
-                  <span className="text-gray-700">Android {item.version}</span>
+                  <span className="!text-gray-700">Android {item.version}</span>
                   <div className="flex items-center space-x-2">
                     <div className="w-32 bg-gray-200 rounded-full h-2">
                       <div
@@ -173,7 +173,7 @@ export default function StatsPage() {
                         }}
                       ></div>
                     </div>
-                    <span className="text-sm text-gray-500 w-8">{item.count}</span>
+                    <span className="text-sm !text-gray-500 w-8">{item.count}</span>
                   </div>
                 </div>
               ))}
@@ -183,12 +183,12 @@ export default function StatsPage() {
           {/* 제조사 통계 */}
           <div className="bg-white rounded-lg shadow">
             <div className="p-6 border-b">
-              <h3 className="text-lg font-semibold text-gray-900">제조사별 분포</h3>
+              <h3 className="text-lg font-semibold !text-gray-900">제조사별 분포</h3>
             </div>
             <div className="p-6">
               {stats.manufacturers.map((item) => (
                 <div key={item.name} className="flex items-center justify-between py-2">
-                  <span className="text-gray-700">{item.name}</span>
+                  <span className="!text-gray-700">{item.name}</span>
                   <div className="flex items-center space-x-2">
                     <div className="w-32 bg-gray-200 rounded-full h-2">
                       <div
@@ -198,7 +198,7 @@ export default function StatsPage() {
                         }}
                       ></div>
                     </div>
-                    <span className="text-sm text-gray-500 w-8">{item.count}</span>
+                    <span className="text-sm !text-gray-500 w-8">{item.count}</span>
                   </div>
                 </div>
               ))}
@@ -208,7 +208,7 @@ export default function StatsPage() {
           {/* 센서 통계 */}
           <div className="lg:col-span-2 bg-white rounded-lg shadow">
             <div className="p-6 border-b">
-              <h3 className="text-lg font-semibold text-gray-900">주요 센서 TOP 10</h3>
+              <h3 className="text-lg font-semibold !text-gray-900">주요 센서 TOP 10</h3>
             </div>
             <div className="p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -220,10 +220,10 @@ export default function StatsPage() {
                       </span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">
+                      <p className="text-sm font-medium !text-gray-900 truncate">
                         {sensor.name}
                       </p>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm !text-gray-500">
                         {sensor.count}개 디바이스
                       </p>
                     </div>
