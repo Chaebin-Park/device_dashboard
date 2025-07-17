@@ -323,8 +323,8 @@ export default function Dashboard() {
                           <div className="text-xs text-gray-400 mt-1">
                             {new Date(device.created_at).toLocaleDateString('ko-KR')}
                           </div>
-                        {/* </div>
-                        <button
+                        </div>
+                        {/* <button
                           onClick={() => toggleDeviceComparison(device)}
                           disabled={!comparisonDevices.find(d => d.id === device.id) && comparisonDevices.length >= 4}
                           className={`ml-2 px-3 py-1 text-xs rounded font-medium transition-colors ${
