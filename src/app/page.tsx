@@ -6,9 +6,8 @@ import AdvancedFilters, { FilterOptions } from '../components/AdvancedFilters'
 import DeviceComparison from '../components/DeviceComparison'
 import AnalyticsCharts from '../components/AnalyticsCharts'
 import TierAnalyticsChart from '../components/TierAnalyticsChart'
-import DataExport from '../components/DataExport'
 import DeviceTierBadge from '../components/DeviceTierBadge'
-import { getDeviceTierInfo, DeviceTier } from '../utils/deviceTierSystem'
+import { getDeviceTierInfo } from '../utils/deviceTierSystem'
 
 export const dynamic = 'force-dynamic'
 
@@ -979,7 +978,7 @@ function Pagination({ currentPage, totalPages, onPageChange }: {
   const pages = []
   const showPages = 5 // 보여줄 페이지 수
   let startPage = Math.max(1, currentPage - Math.floor(showPages / 2))
-  let endPage = Math.min(totalPages, startPage + showPages - 1)
+  const endPage = Math.min(totalPages, startPage + showPages - 1)
 
   if (endPage - startPage + 1 < showPages) {
     startPage = Math.max(1, endPage - showPages + 1)

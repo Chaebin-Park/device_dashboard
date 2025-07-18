@@ -44,7 +44,7 @@ export default function TierAnalyticsChart({ devices, deviceSensorCounts }: Prop
   
   // 등급별 평균 성능 비교 데이터
   const performanceComparisonData = Object.entries(tierStats)
-    .filter(([_, stats]) => stats.count > 0)
+    .filter(([, stats]) => stats.count > 0)
     .map(([tier, stats]) => ({
       tier: TIER_CONFIG[tier as keyof typeof TIER_CONFIG].label,
       memory: Math.round(stats.avgMemory * 10) / 10,
@@ -63,7 +63,7 @@ export default function TierAnalyticsChart({ devices, deviceSensorCounts }: Prop
   
   // 대표 기기들 (각 등급별 점수가 높은 기기)
   const representativeDevices = Object.entries(tierStats)
-    .filter(([_, stats]) => stats.count > 0)
+    .filter(([, stats]) => stats.count > 0)
     .map(([tier, stats]) => {
       const topDevice = stats.devices
         .map(device => ({
@@ -103,7 +103,7 @@ export default function TierAnalyticsChart({ devices, deviceSensorCounts }: Prop
                   borderRadius: '4px',
                   color: '#374151'
                 }}
-                formatter={(value, name) => [value, '디바이스 수']}
+                formatter={(value) => [value, '디바이스 수']}
               />
               <Bar dataKey="count">
                 {tierDistributionData.map((entry, index) => (
