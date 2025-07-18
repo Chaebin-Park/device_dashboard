@@ -1,4 +1,3 @@
-// components/AdvancedFiltersWithTier.tsx
 'use client'
 
 import { useState } from 'react'
@@ -19,7 +18,7 @@ interface Props {
   availableAndroidVersions: string[]
 }
 
-export default function AdvancedFiltersWithTier({ 
+export default function AdvancedFilters({ 
   onFilterChange, 
   availableManufacturers, 
   availableAndroidVersions 

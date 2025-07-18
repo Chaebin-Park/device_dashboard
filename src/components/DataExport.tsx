@@ -1,4 +1,3 @@
-// components/DataExport.tsx
 'use client'
 
 import { Device } from '../lib/supabase'
@@ -91,23 +90,23 @@ export default function DataExport({ devices, filteredDevices }: Props) {
 
   return (
     <div className="bg-white rounded-lg shadow p-4">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">데이터 내보내기</h3>
+      <h3 className="text-lg font-semibold !text-gray-900 mb-4">데이터 내보내기</h3>
       
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <span className="text-sm text-gray-600">
+          <span className="text-sm !text-gray-600">
             필터링된 데이터: {filteredDevices.length}개
           </span>
           <div className="space-x-2">
             <button
               onClick={() => exportToCSV(filteredDevices, 'filtered_devices')}
-              className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
+              className="px-3 py-1 bg-blue-500 !text-white rounded text-sm hover:bg-blue-600"
             >
               CSV
             </button>
             <button
               onClick={() => exportToJSON(filteredDevices, 'filtered_devices')}
-              className="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600"
+              className="px-3 py-1 bg-green-500 !text-white rounded text-sm hover:bg-green-600"
             >
               JSON
             </button>
@@ -115,19 +114,19 @@ export default function DataExport({ devices, filteredDevices }: Props) {
         </div>
 
         <div className="flex items-center justify-between">
-          <span className="text-sm text-gray-600">
+          <span className="text-sm !text-gray-600">
             전체 데이터: {devices.length}개
           </span>
           <div className="space-x-2">
             <button
               onClick={() => exportToCSV(devices, 'all_devices')}
-              className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
+              className="px-3 py-1 bg-blue-500 !text-white rounded text-sm hover:bg-blue-600"
             >
               CSV
             </button>
             <button
               onClick={() => exportToJSON(devices, 'all_devices')}
-              className="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600"
+              className="px-3 py-1 bg-green-500 !text-white rounded text-sm hover:bg-green-600"
             >
               JSON
             </button>
@@ -137,7 +136,7 @@ export default function DataExport({ devices, filteredDevices }: Props) {
         <div className="border-t pt-3">
           <button
             onClick={generateReport}
-            className="w-full px-4 py-2 bg-white text-gray-900 border border-gray-300 rounded hover:bg-gray-100"
+            className="w-full px-4 py-2 bg-white !text-gray-900 border border-gray-300 rounded hover:bg-gray-100"
           >
             📊 종합 분석 보고서 생성
           </button>

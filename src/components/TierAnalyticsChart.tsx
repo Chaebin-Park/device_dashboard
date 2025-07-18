@@ -1,4 +1,3 @@
-// components/TierAnalyticsChart.tsx
 'use client'
 
 import { 
@@ -199,9 +198,9 @@ export default function TierAnalyticsChart({ devices, deviceSensorCounts }: Prop
               <div key={tier} className="space-y-3">
                 <TierComparisonCard tierInfo={tierInfo!} />
                 <div className="text-center">
-                  <div className="font-medium text-gray-900">{device!.model}</div>
-                  <div className="text-sm text-gray-600">{device!.manufacturer}</div>
-                  <div className="text-xs text-gray-500 mt-1">
+                  <div className="font-medium !text-gray-900">{device!.model}</div>
+                  <div className="text-sm !text-gray-600">{device!.manufacturer}</div>
+                  <div className="text-xs !text-gray-500 mt-1">
                     {device!.total_memory_gb}GB • {deviceSensorCounts[device!.device_id] || 0}개 센서
                   </div>
                 </div>

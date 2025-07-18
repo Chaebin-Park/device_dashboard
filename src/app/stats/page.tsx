@@ -215,7 +215,7 @@ export default function StatsPage() {
                 {stats.topSensors.map((sensor, index) => (
                   <div key={sensor.name} className="flex items-center space-x-3">
                     <div className="flex-shrink-0">
-                      <span className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-blue-100 text-blue-800 text-sm font-medium">
+                      <span className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-blue-100 !text-blue-800 text-sm font-medium">
                         {index + 1}
                       </span>
                     </div>
@@ -244,8 +244,8 @@ function StatsCard({ title, value, icon }: { title: string; value: string; icon:
       <div className="flex items-center">
         <div className="text-2xl mr-3">{icon}</div>
         <div>
-          <p className="text-sm font-medium text-gray-600">{title}</p>
-          <p className="text-2xl font-bold text-gray-900">{value}</p>
+          <p className="text-sm font-medium !text-gray-600">{title}</p>
+          <p className="text-2xl font-bold !text-gray-900">{value}</p>
         </div>
       </div>
     </div>

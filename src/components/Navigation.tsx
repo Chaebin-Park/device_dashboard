@@ -13,7 +13,7 @@ export default function Navigation() {
         <div className="flex justify-between h-16">
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
-              <Link href="/" className="text-xl font-bold text-gray-900">
+              <Link href="/" className="text-xl font-bold !text-gray-900">
                 📱 Device Dashboard
               </Link>
             </div>
@@ -25,7 +25,7 @@ export default function Navigation() {
           </div>
           
           <div className="flex items-center">
-            <span className="hidden md:block text-sm text-gray-500">
+            <span className="hidden md:block text-sm !text-gray-500">
               실시간 디바이스 모니터링
             </span>
             
@@ -33,7 +33,7 @@ export default function Navigation() {
             <div className="sm:hidden ml-4">
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+                className="inline-flex items-center justify-center p-2 rounded-md !text-gray-400 hover:!text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
                 aria-expanded="false"
               >
                 <span className="sr-only">메뉴 열기</span>
@@ -71,7 +71,7 @@ export default function Navigation() {
             {/* 모바일에서 설명 텍스트 */}
             <div className="pt-4 pb-3 border-t border-gray-200">
               <div className="px-4">
-                <div className="text-sm text-gray-500 text-center">
+                <div className="text-sm !text-gray-500 text-center">
                   실시간 디바이스 모니터링
                 </div>
               </div>
@@ -92,8 +92,8 @@ function NavLink({ href, label }: { href: string; label: string }) {
       href={href}
       className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors ${
         isActive
-          ? 'border-blue-500 text-gray-900'
-          : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+          ? 'border-blue-500 !text-gray-900'
+          : 'border-transparent !text-gray-500 hover:border-gray-300 hover:!text-gray-700'
       }`}
     >
       {label}
@@ -111,8 +111,8 @@ function MobileNavLink({ href, label, onClick }: { href: string; label: string; 
       onClick={onClick}
       className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium transition-colors ${
         isActive
-          ? 'bg-blue-50 border-blue-500 text-blue-700'
-          : 'border-transparent text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800'
+          ? 'bg-blue-50 border-blue-500 !text-blue-700'
+          : 'border-transparent !text-gray-600 hover:bg-gray-50 hover:border-gray-300 hover:!text-gray-800'
       }`}
     >
       {label}

@@ -1,4 +1,3 @@
-// components/AnalyticsCharts.tsx
 'use client'
 
 import { 
@@ -78,7 +77,7 @@ export default function AnalyticsCharts({ devices }: Props) {
       {/* Android 버전별 분포 */}
       <div className="bg-white rounded-lg shadow">
         <div className="p-6 border-b bg-white sticky top-0 z-10 rounded-t-lg shadow-sm">
-          <h3 className="text-lg font-semibold text-gray-900">Android 버전별 분포</h3>
+          <h3 className="text-lg font-semibold !text-gray-900">Android 버전별 분포</h3>
         </div>
         <div className="p-6 max-h-80 overflow-auto">
           <div style={{ width: '100%', minWidth: `${Math.max(androidChartData.length * 60, 400)}px` }}>
@@ -106,7 +105,7 @@ export default function AnalyticsCharts({ devices }: Props) {
         {/* 메모리 분포 */}
         <div className="bg-white rounded-lg shadow">
           <div className="p-6 border-b bg-white sticky top-0 z-10 rounded-t-lg shadow-sm">
-            <h3 className="text-lg font-semibold text-gray-900">메모리 분포</h3>
+            <h3 className="text-lg font-semibold !text-gray-900">메모리 분포</h3>
           </div>
           <div className="p-6 max-h-80 overflow-auto">
             <div style={{ width: '100%', minWidth: `${Math.max(memoryChartData.length * 80, 300)}px` }}>
@@ -133,7 +132,7 @@ export default function AnalyticsCharts({ devices }: Props) {
         {/* 제조사별 분포 (파이 차트) */}
         <div className="bg-white rounded-lg shadow">
           <div className="p-6 border-b bg-white sticky top-0 z-10 rounded-t-lg shadow-sm">
-            <h3 className="text-lg font-semibold text-gray-900">제조사별 분포</h3>
+            <h3 className="text-lg font-semibold !text-gray-900">제조사별 분포</h3>
           </div>
           <div className="p-6 max-h-80 overflow-auto">
             <ResponsiveContainer width="100%" height={250}>
@@ -169,7 +168,7 @@ export default function AnalyticsCharts({ devices }: Props) {
       {/* 메모리 vs 저장공간 산점도 */}
       <div className="bg-white rounded-lg shadow">
         <div className="p-6 border-b bg-white sticky top-0 z-10 rounded-t-lg shadow-sm">
-          <h3 className="text-lg font-semibold text-gray-900">메모리 vs 저장공간 분포</h3>
+          <h3 className="text-lg font-semibold !text-gray-900">메모리 vs 저장공간 분포</h3>
         </div>
         <div className="p-6 max-h-96 overflow-auto">
           <div style={{ width: '100%', minWidth: '600px' }}>
@@ -185,9 +184,9 @@ export default function AnalyticsCharts({ devices }: Props) {
                       const data = payload[0].payload
                       return (
                         <div className="bg-white p-3 shadow-lg rounded border" style={{ color: '#374151' }}>
-                          <p className="font-semibold" style={{ color: '#111827' }}>{data.model}</p>
-                          <p style={{ color: '#374151' }}>메모리: {data.memory}GB</p>
-                          <p style={{ color: '#374151' }}>저장공간: {data.storage}GB</p>
+                          <p className="font-semibold !text-gray-800">{data.model}</p>
+                          <p className="!text-gray-700">메모리: {data.memory}GB</p>
+                          <p className="!text-gray-700">저장공간: {data.storage}GB</p>
                         </div>
                       )
                     }

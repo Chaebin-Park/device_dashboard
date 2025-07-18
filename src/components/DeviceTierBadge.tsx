@@ -1,4 +1,3 @@
-// components/DeviceTierBadge.tsx
 'use client'
 
 import { Device } from '../lib/supabase'
