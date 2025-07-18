@@ -104,9 +104,9 @@ export default function AdvancedFilters({
               </select>
             </div>
 
-            {/* Android 버전 필터 */}
+            {/* Android 버전 필터 → OS 버전 필터 */}
             <div>
-              <label className="block text-sm font-medium !text-gray-700 mb-2">Android 버전</label>
+              <label className="block text-sm font-medium !text-gray-700 mb-2">OS 버전</label>
               <select
                 multiple
                 value={filters.androidVersions}
@@ -115,7 +115,7 @@ export default function AdvancedFilters({
                 size={4}
               >
                 {availableAndroidVersions.map(version => (
-                  <option key={version} value={version}>Android {version}</option>
+                  <option key={version} value={version}>OS {version}</option>
                 ))}
               </select>
             </div>

@@ -641,7 +641,7 @@ export default function Dashboard() {
                         <InfoItem label="모델" value={selectedDevice.model} />
                         <InfoItem label="제조사" value={selectedDevice.manufacturer} />
                         <InfoItem label="브랜드" value={selectedDevice.brand} />
-                        <InfoItem label="Android 버전" value={selectedDevice.android_version} />
+                        <InfoItem label="OS 버전" value={selectedDevice.android_version} />
                         <InfoItem label="SDK 버전" value={selectedDevice.sdk_version?.toString()} />
                         <InfoItem label="통신사" value={selectedDevice.carrier_name} />
                       </div>

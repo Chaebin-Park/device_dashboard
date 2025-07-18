@@ -277,7 +277,7 @@ export default function DeviceComparison({
             <tbody className="bg-white divide-y divide-gray-200">
               <ComparisonRow label="제조사" values={selectedDevices.map(d => d.manufacturer)} />
               <ComparisonRow label="브랜드" values={selectedDevices.map(d => d.brand)} />
-              <ComparisonRow label="Android 버전" values={selectedDevices.map(d => d.android_version)} />
+              <ComparisonRow label="OS 버전" values={selectedDevices.map(d => d.android_version)} />
               <ComparisonRow label="SDK 버전" values={selectedDevices.map(d => d.sdk_version?.toString())} />
               <ComparisonRow label="CPU 코어" values={selectedDevices.map(d => `${d.cpu_cores} cores`)} />
               <ComparisonRow 

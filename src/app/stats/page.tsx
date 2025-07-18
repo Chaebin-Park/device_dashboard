@@ -30,7 +30,7 @@ export default function StatsPage() {
         .from('devices')
         .select('*', { count: 'exact', head: true })
 
-      // Android 버전별 통계
+      // OS 버전별 통계
       const { data: androidData } = await supabase
         .from('devices')
         .select('android_version')
@@ -158,7 +158,7 @@ export default function StatsPage() {
           {/* Android 버전 통계 */}
           <div className="bg-white rounded-lg shadow">
             <div className="p-6 border-b">
-              <h3 className="text-lg font-semibold !text-gray-900">Android 버전별 분포</h3>
+              <h3 className="text-lg font-semibold !text-gray-900">OS 버전별 분포</h3>
             </div>
             <div className="p-6">
               {stats.androidVersions.map((item) => (

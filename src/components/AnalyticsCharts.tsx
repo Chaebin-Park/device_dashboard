@@ -23,7 +23,7 @@ interface Props {
 const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#F97316']
 
 export default function AnalyticsCharts({ devices }: Props) {
-  // Android 버전별 분포
+  // OS 버전별 분포
   const androidVersionData = devices.reduce((acc, device) => {
     const version = device.android_version
     if (version) {
@@ -74,10 +74,10 @@ export default function AnalyticsCharts({ devices }: Props) {
 
   return (
     <div className="space-y-8">
-      {/* Android 버전별 분포 */}
+      {/* OS 버전별 분포 */}
       <div className="bg-white rounded-lg shadow">
         <div className="p-6 border-b bg-white sticky top-0 z-10 rounded-t-lg shadow-sm">
-          <h3 className="text-lg font-semibold !text-gray-900">Android 버전별 분포</h3>
+          <h3 className="text-lg font-semibold !text-gray-900">OS 버전별 분포</h3>
         </div>
         <div className="p-6 max-h-80 overflow-auto">
           <div style={{ width: '100%', minWidth: `${Math.max(androidChartData.length * 60, 400)}px` }}>
